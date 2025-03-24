@@ -1,5 +1,6 @@
 module SINNLS
+    include("utils.jl")
+    include("SI_NNLS_restart.jl")
 
-greet() = print("Hello World!")
-
-end # module SINNLS
+    export SI_NNLS_simple
+end
