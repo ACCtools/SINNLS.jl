@@ -1,7 +1,7 @@
 name = "SINNLS"
 uuid = "993b1ac0-07ef-437f-99f0-2b4a2275ea96"
 authors = ["Jelena Diakonikolas <jelena@cs.wisc.edu>", "Swati Padmanabhan <pswati@uw.edu>", "Chenghui Li <cli539@wisc.edu>", "Chaobing Song <chaobing.song@wisc.edu>"]
-version = "0.1.0"
+version = "0.1.1"
 
 [deps]
 IterativeSolvers = "42fd0dbc-a981-5370-80f2-aaf504508153"
