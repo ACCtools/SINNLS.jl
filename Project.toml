@@ -1,0 +1,4 @@
+name = "SINNLS"
+uuid = "993b1ac0-07ef-437f-99f0-2b4a2275ea96"
+authors = ["Hyunwoo Ryu <wowo0118@sasa.hs.kr>"]
+version = "0.1.0"
