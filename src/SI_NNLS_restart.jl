@@ -7,7 +7,7 @@ function SI_NNLS_simple(C::SparseMatrixCSC{T, Int}, b::Vector{T};
                          num_restart::Int = 200, 
                          freq::Int = 20, 
                          restart_ratio::Float64 = 0.7,  
-                         ϵ::Float64 = 1e-7, 
+                         epi::Float64 = 1e-7, 
                          time_limit::Bool = true) where T <: AbstractFloat
 
     C, C_b, non_zero_col_norm = reformulation_sparsev4!(C, b)
@@ -16,7 +16,7 @@ function SI_NNLS_simple(C::SparseMatrixCSC{T, Int}, b::Vector{T};
     C_x0_ = zeros(T, m)
 
     return SI_NNLS_restart!(C, b, C_b, x0_, C_x0_, blocksize, K, total_time,
-                            num_restart, freq, restart_ratio, ϵ, time_limit)
+                            num_restart, freq, restart_ratio, epi, time_limit)
 end
 
 function SI_NNLS_restart!(C::SparseMatrixCSC{T, Int}, b::Vector{T}, C_b::Vector{T}, 
@@ -53,14 +53,14 @@ function SI_NNLS!(C::SparseMatrixCSC{T, Int}, b::Vector{T}, C_b::Vector{T},
 
     num_blks = length(blocks)
     K *= num_blks
-    prev_a, prev_A = zero(T), zero(T)
+    prev_a::T, prev_A::T = zero(T), zero(T)
     C_b = (b' * C)[:]
     upper_bounds = C_b ./ col_norm_square
 
-    a = 1 / (sqrt(2) * (num_blks)^(1.5))
-    A = a
-    later_a = a / T(num_blks - 1)
-    later_A = A + later_a
+    a::T = 1 / (sqrt(2) * (num_blks)^(1.5))
+    A::T = a
+    later_a::T = a / (num_blks - 1)
+    later_A::T = A + later_a
 
     p = zeros(T, n)
     r = zeros(T, n)
