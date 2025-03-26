@@ -305,7 +305,7 @@ function SI_NNLSv2!(C::Matrix{T}, b::Vector{T}, C_b::Vector{T},
             tmp = similar(q_view)
             c1 = (1 - ratio) / prev_A
             c2 = (num_blks - 1) * ratio
-            @turbo for i in 1:N
+            @tturbo for i in 1:N
                 tmp[i] = q_view[i] + c1 * s_view[i] + c2 * t_view[i]
             end
 
