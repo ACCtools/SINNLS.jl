@@ -2,6 +2,7 @@ using LinearAlgebra
 using SparseArrays
 using IterativeSolvers
 using KrylovKit
+using Octavian
 
 function reformulation_sparse!(A::SparseMatrixCSC{T, Int}, b::Vector{T}) where T <: AbstractFloat
     col_norm = norm.(eachcol(A))
@@ -29,7 +30,7 @@ function reformulation_sparse!(A::SparseMatrixCSC{T, Int}, b::Vector{T}) where T
     return Â, A_T_b, non_zero_col_norm, non_zero_col_idx[final_non_zero_col_idx]
 end
 
-function reformulation_sparse!(A::Matrix{T}, b::Vector{T}) where T <: AbstractFloat
+function reformulation_sparse!(A::AbstractMatrix{T}, b::Vector{T}) where T <: AbstractFloat
     col_norm = norm.(eachcol(A))
     non_zero_col_idx = Int[]
     non_zero_col_norm = T[]
@@ -39,8 +40,8 @@ function reformulation_sparse!(A::Matrix{T}, b::Vector{T}) where T <: AbstractFl
             push!(non_zero_col_norm, col_norm[i])
         end
     end
-    Â = A[:, non_zero_col_idx]
-    A_T_b = (b' * Â)[:]
+    @views Â = A[:, non_zero_col_idx]
+    A_T_b = matmul(b', Â)
 
     final_non_zero_col_idx = Int[]
     for i in 1:length(A_T_b)
@@ -48,7 +49,7 @@ function reformulation_sparse!(A::Matrix{T}, b::Vector{T}) where T <: AbstractFl
             push!(final_non_zero_col_idx, i)
         end
     end
-    Â = Â[:, final_non_zero_col_idx]
+    @views Â = Â[:, final_non_zero_col_idx]
     A_T_b = A_T_b[final_non_zero_col_idx]
     non_zero_col_norm = non_zero_col_norm[final_non_zero_col_idx]
 
@@ -84,7 +85,7 @@ function compute_blocks_rows_slice(C::SparseMatrixCSC{T, Int}, blocksize::Int) w
     return blocks, row_idxs, sliced_Cs
 end
 
-function compute_blocks_rows_slice(C::Matrix{T}, blocksize::Int) where T <: AbstractFloat
+function compute_blocks_rows_slice(C::AbstractMatrix{T}, blocksize::Int) where T <: AbstractFloat
     d, n = size(C)
     blocks = UnitRange{Int}[]
     row_idxs = Vector{Int}[]
@@ -101,7 +102,7 @@ function compute_blocks_rows_slice(C::Matrix{T}, blocksize::Int) where T <: Abst
         push!(row_idxs, active_rows)
     end
 
-    sliced_Cs = Vector{SubArray{T,2,Matrix{T}}}()
+    sliced_Cs = Vector{SubArray}()
     for i in 1:length(row_idxs)
         push!(sliced_Cs, @view C[row_idxs[i], blocks[i]])
     end
@@ -128,7 +129,7 @@ function compute_Lips(C::SparseMatrixCSC{T, Int}, blocks, row_idxs) where T <: A
     return etas
 end
 
-function compute_Lips(C::Matrix{T}, blocks, row_idxs) where T <: AbstractFloat
+function compute_Lips(C::AbstractMatrix{T}, blocks, row_idxs) where T <: AbstractFloat
     etas = zeros(T, length(blocks))
     blocksize = length(blocks[1])
     if blocksize >= 5

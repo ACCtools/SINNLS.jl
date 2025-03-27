@@ -3,7 +3,7 @@ using Dates
 using Octavian
 using LoopVectorization
 
-function SI_NNLS(C::Union{SparseMatrixCSC{T, Int}, Matrix{T}},
+function SI_NNLS(C::Union{SparseMatrixCSC{T, Int}, AbstractMatrix{T}},
                  b::Vector{T};
                  blocksize::Int = 1, 
                  K::Int = 100000, 
@@ -15,7 +15,6 @@ function SI_NNLS(C::Union{SparseMatrixCSC{T, Int}, Matrix{T}},
                  time_limit::Bool = true,
                  early_stop::Bool = false) where T <: AbstractFloat
     final_n = size(C)[2]
-    
     C, C_b, non_zero_col_norm, non_zero_col_idx = reformulation_sparse!(C, b)
     m, n = size(C)
     x0_ = zeros(T, n)
@@ -32,7 +31,7 @@ function SI_NNLS(C::Union{SparseMatrixCSC{T, Int}, Matrix{T}},
     return x0_full
 end
 
-function SI_NNLS_restart!(C::Matrix{T}, b::Vector{T}, C_b::Vector{T}, 
+function SI_NNLS_restart!(C::AbstractMatrix{T}, b::Vector{T}, C_b::Vector{T}, 
                           x0::Vector{T}, C_x0::Vector{T}, blocksize::Int, K::Int, total_time::Float64,
                           num_restart::Int, freq::Int, restart_ratio::Float64, ϵ::Float64,
                           time_limit::Bool = true, early_stop::Bool = true) where T <: AbstractFloat
@@ -185,9 +184,9 @@ function SI_NNLS!(C::SparseMatrixCSC{T, Int}, b::Vector{T}, C_b::Vector{T},
     end
 end
 
-function SI_NNLS!(C::Matrix{T}, b::Vector{T}, C_b::Vector{T}, 
+function SI_NNLS!(C::AbstractMatrix{T}, b::Vector{T}, C_b::Vector{T}, 
                   x0::Vector{T}, C_x0::Vector{T}, blocks::Array{UnitRange{Int}}, 
-                  row_idxs::Array{Vector{Int}}, sliced_Cs::Vector{SubArray{T,2,Matrix{T}}}, ηs, K::Int, total_time::Float64, 
+                  row_idxs::Array{Vector{Int}}, sliced_Cs::Vector{SubArray{T,2,AbstractMatrix{T}}}, ηs, K::Int, total_time::Float64, 
                   freq::Int, init_metric::T, init_epoch::Int, 
                   init_time::Float64, restart_ratio::Float64, ϵ::Float64, col_norm_square::Vector{T}) where T <: AbstractFloat
     t0 = time()
@@ -254,9 +253,9 @@ function SI_NNLS!(C::Matrix{T}, b::Vector{T}, C_b::Vector{T},
     end
 end
 
-function SI_NNLSv2!(C::Matrix{T}, b::Vector{T}, C_b::Vector{T}, 
+function SI_NNLSv2!(C::AbstractMatrix{T}, b::Vector{T}, C_b::Vector{T}, 
                     x0::Vector{T}, C_x0::Vector{T}, blocks::Array{UnitRange{Int}}, 
-                    row_idxs::Array{Vector{Int}}, sliced_Cs::Vector{SubArray{T,2,Matrix{T}}}, ηs, K::Int, total_time::Float64, 
+                    row_idxs::Array{Vector{Int}}, sliced_Cs::Vector{SubArray}, ηs, K::Int, total_time::Float64, 
                     freq::Int, init_metric::T, init_epoch::Int, 
                     init_time::Float64, restart_ratio::Float64, ϵ::Float64, col_norm_square::Vector{T}) where T <: AbstractFloat
     t0 = time()
@@ -350,7 +349,7 @@ function first_order_opt(C::SparseMatrixCSC{T, Int}, b::Vector{T}, x::Vector{T},
     return val
 end
 
-function first_order_opt(C::Matrix{T}, b::Vector{T}, x::Vector{T}, 
+function first_order_opt(C::AbstractMatrix{T}, b::Vector{T}, x::Vector{T}, 
                          C_x::Vector{T}, C_b::Vector{T}, col_norm_square::Vector{T}) where T <: AbstractFloat
     tmp = (C_x' * C)[:]
     val = norm(x - max.(x - (tmp - C_b) ./ col_norm_square, zero(T)))
