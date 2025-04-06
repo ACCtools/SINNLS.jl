@@ -10,7 +10,7 @@ for i = 5:5
     y::Vector{Float64} = a * x_true
 
     as = sparse(a)
-    x = SI_NNLS_simple(as, y)
+    x = SI_NNLS(as, y)
 
     @test norm(a * x - y) < 1e-3
 end
@@ -21,7 +21,7 @@ for i = 5:5
     y::Vector{Float32} = a * x_true
 
     as = sparse(a)
-    x = SI_NNLS_simple(as, y)
+    x = SI_NNLS(as, y)
 
     @test norm(a * x - y) < 1e-3
 end
