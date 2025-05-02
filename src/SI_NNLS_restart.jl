@@ -5,7 +5,7 @@ using LoopVectorization
 
 function SI_NNLS(C::Union{SparseMatrixCSC{T, Int}, AbstractMatrix{T}},
                  b::Vector{T};
-                 x0_::NoUnion{thing, Vector{T}} = nothing,
+                 x0_::Union{Nothing, Vector{T}} = nothing,
                  blocksize::Int = 1, 
                  K::Int = 100000, 
                  total_time = 3600.0,
