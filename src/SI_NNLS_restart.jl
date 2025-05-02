@@ -23,6 +23,7 @@ function SI_NNLS(C::Union{SparseMatrixCSC{T, Int}, AbstractMatrix{T}},
         x0_ = zeros(T, n)
         C_x0_ = zeros(T, m)
     else
+        x0_ = x0_[non_zero_col_idx]
         C_x0_ = C * x0_
     end
 
