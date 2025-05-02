@@ -5,6 +5,7 @@ using LoopVectorization
 
 function SI_NNLS(C::Union{SparseMatrixCSC{T, Int}, AbstractMatrix{T}},
                  b::Vector{T};
+                 x0_::NoUnion{thing, Vector{T}} = nothing,
                  blocksize::Int = 1, 
                  K::Int = 100000, 
                  total_time = 3600.0,
@@ -17,8 +18,13 @@ function SI_NNLS(C::Union{SparseMatrixCSC{T, Int}, AbstractMatrix{T}},
                  final_n = size(C)[2]
     C, C_b, non_zero_col_norm, non_zero_col_idx = reformulation_sparse!(C, b)
     m, n = size(C)
-    x0_ = zeros(T, n)
-    C_x0_ = zeros(T, m)
+
+    if isnothing(x0_)
+        x0_ = zeros(T, n)
+        C_x0_ = zeros(T, m)
+    else
+        C_x0_ = C * x0_
+    end
 
     x0 = SI_NNLS_restart!(C, b, C_b, x0_, C_x0_, blocksize, K, Float64(total_time),
                           num_restart, freq, restart_ratio, Float64(epi), time_limit)
